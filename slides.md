@@ -26,13 +26,14 @@ favicon: favicon.png
 </div>
 
 <!--
-Hello everyone.
+Hello everyone. 
 
-My name is Andreas, and I'm a Staff Engineer at HackTheBox.
+Today I want to share a real story about rewriting an entire application.
+We moved from a hybrid Laravel Blade and Vue 2 application to a new front end built with Nuxt.
 
-Today, I want to share a story about rewriting an entire application. We moved from a hybrid Laravel Blade and Vue 2 application to a new frontend built with Nuxt.
+This is not going to be very technical talk about Vue and Nuxt, or changing frameworks. 
 
-But this is not going to be only a talk about Vue, Nuxt, or changing frameworks. I want to talk about why we decided to rewrite the application, how we approached it, what didn't go as expected, why our original estimate wasn't enough, and, most importantly, what I would do differently if I had to do it again.
+It’s more about how we approached the rewrite, what didn’t go as we expected, and most importantly, what I would do differently if I had to do it again.
 -->
 
 ---
@@ -67,13 +68,11 @@ function resolveAssetUrl(url: string): string {
 </div>
 
 <!--
-Before we get into the technical story, a very quick introduction.
+Before we start let me introduce my self.
 
-I'm Andreas. I work as a Staff Engineer at HackTheBox.
+I'm Andreas. I am Staff Engineer at HackTheBox.
 
-Outside engineering, I like photography, music, books, movies and time with my family .
-
-That is all you need to know about me for today. Let's start with the application we already had, because understanding where we started is important to understanding why this became much more than a framework upgrade.
+Outside of engineering, I enjoy photography, music, books, movies, and spending time with my family.
 -->
 
 ---
@@ -117,17 +116,15 @@ flowchart TD
 </BoulitPaper>
 
 <!--
-Let's start with the application we already had.
+Let’s start with the application we already had. 
 
-It was a Laravel application, but I would describe it as a hybrid application. Some pages were completely rendered using Laravel Blade. Other parts of the platform were built with Vue 2.
+It was a combination of Laravel and Vue 2. That’s why I like to call it a hybrid application. Some pages were rendered with Laravel Blade, while others were using Vue.
 
-For those parts, Laravel would first render a Blade page. That Blade page would initialise Vue, and from that point onwards, routing for that section of the application was handled by Vue.
+For the Vue 2 pages, what we did was render a Laravel Blade page, initialise Vue inside it, and from that point onwards Vue was handling the routing for that section.
 
-So, essentially, we had two different worlds living inside the same product. We had pages where Laravel was responsible for rendering everything, and we had other sections where Laravel would give control to Vue.
+I wouldn’t say this architecture was a bad decision, because it helped us grow the product and scale the platform.
 
-I want to make something clear here: this architecture was not necessarily a bad decision. At that point in the life of the product, it helped us move forward and scale the platform.
-
-Architecture decisions make sense in the context in which they were made. The problem is that applications change, teams change, companies grow, and requirements change. Eventually, our needs started to become different.
+We have to keep in mind that architecture decisions make sense in the context in which they were made. The issue is that applications change and requirements change too.
 -->
 
 ---
@@ -145,17 +142,15 @@ layout: center
 </div>
 
 <!--
-As the platform became bigger, and as we had more applications, consistency became much more important.
+As the platform was getting bigger, and we also had more applications in the organization, the need for UI consistency became more important.
 
-We wanted developers to be able to reuse common components and avoid rebuilding similar functionality again and again. We also wanted the frontend architecture itself to become more consistent.
+We wanted to be able to reuse components and functionality across our platforms, so we wouldn’t have to rewrite them every time.
 
-At the same time, there was another important factor: Vue 2 was reaching its end of life. Migrating to Vue 3 was no longer simply something that would be nice to do in the future. It was becoming something we actually needed to address.
+At the same time, Vue 2 had reached end of life, so upgrading to Vue 3 became necessary.
 
-We also wanted to separate the frontend more clearly from the backend.
+We also wanted to clearly separate the front end from the back end.
 
-When we considered all of these pressures together, we realised that what we needed wasn't simply a small migration from Vue 2 to Vue 3. We were looking at a much bigger architectural change.
-
-That was the point where we started talking about rewriting the frontend application.
+Taking all of that into consideration, we decided that the best solution was to rewrite the application from scratch.
 -->
 
 ---
@@ -173,17 +168,17 @@ class: text-center
 # The technology choice<br>was the <span class="accent">easy part.</span>
 
 <!--
-Once we had decided to rewrite, we had to decide what the new application would look like.
+After deciding that we had to rewrite the application, the next question was: what stack were we going to use?
 
-One thing that was very important to us was having an opinionated structure. We wanted someone joining the team to understand quite quickly where things belong: where pages go, where components go, and where shared logic goes. We didn't want every developer to make those decisions again and again.
+One thing we definitely wanted was an opinionated structure, so that any engineer joining the team in the future could get onboarded more easily and wouldn’t have to figure out where components go, where pages live, and so on.
 
-That was one reason we started looking at Nuxt. Nuxt gave us that structure. We also liked the ecosystem around it. There were existing modules and solutions that we could use instead of solving everything ourselves.
+Nuxt gave us that structure, along with some other useful things. It also has a great ecosystem and a lot of existing modules, so we could use some of them instead of building everything from scratch.
 
-So we chose Nuxt. At the same time, we moved from JavaScript to TypeScript. The previous application contained JavaScript, Vue 2, and also some jQuery. For the new application, we wanted typing to give us an additional level of safety and make the data we were working with clearer.
+The second decision was to use TypeScript. We wanted a more type-safe solution, with better feedback while writing code, and a clearer understanding of the data we were handling.
 
-For state management, we moved from Vuex to Pinia. We followed the direction of the Vue ecosystem, and we liked how Pinia let us organise state into smaller, focused stores.
+Last but not least, we followed the direction of the Vue ecosystem and switched from Vuex to Pinia. What we liked about Pinia was that it allowed us to organise the state into smaller, focused stores.
 
-Our new frontend was becoming Nuxt, Vue 3, TypeScript, and Pinia. But choosing that stack was actually the easy part.
+So the new application would use Nuxt, TypeScript, and Pinia.
 -->
 
 ---
@@ -216,19 +211,17 @@ flowchart LR
 <div class="takeaway">The frontend rewrite also created backend work.</div>
 
 <!--
-There was something very important about this rewrite that affected the scope significantly.
+There was something very important about this rewrite. As I have already mentioned, some pages were rendered with Laravel Blade.
 
-Remember those Blade pages. Many pages in the old application were rendered directly by Laravel. A Laravel controller could prepare the data and render it directly into the Blade template. There didn't need to be an API endpoint for everything.
+So there was no need to have API endpoints for those pages, because the Laravel controller was getting the data and rendering the Blade page with all the information we needed.
 
-Once that page was going to live inside the Nuxt application, that changed. The frontend now needed a way to request the data.
+With Nuxt, things were different. We needed an API in order to get the data and display the page.
 
-For a number of pages, the backend also had work to do. Endpoints had to be created so that the new frontend could get the information it needed.
+For that, we also needed help from the backend team, and that made the scope of the rewrite significantly bigger.
 
-So when we talked about rewriting the application, this was not simply: take a Vue 2 component and rewrite it in Vue 3.
+So this was not just a simple migration. We didn’t only have to rewrite some pages. We also had to create the way for the new frontend to fetch the data it needed.
 
-We were also taking pages that had previously been rendered by Laravel and turning them into frontend pages. For those pages, backend support had to be created as well.
-
-This was one of the reasons the project was large. What sounded like a frontend rewrite crossed the frontend-backend boundary.
+So, in the end, this was not just a frontend rewrite.
 -->
 
 ---
@@ -255,17 +248,17 @@ class: text-center
 <!--
 Eventually came the question that always comes: how long is this going to take?
 
-At that time, we had two frontend engineers working on the application. Our estimate was around one year.
+At that time, we were two front-end engineers working on the application, and our estimation was around one year.
 
-But there was an important condition attached to that estimate. For that year, we needed to focus mainly on the rewrite.
+But there was an important condition. During that year, we would not add new features to the legacy application. We would only maintain it, fix bugs, and stay mainly focused on the rewrite.
 
-Of course, the existing application was still in production. We couldn't simply stop supporting it. We would continue fixing bugs, dealing with important issues, and maintaining the existing product. But we didn't want to continuously add new features to the legacy application.
+Of course, this was not an easy request, and not something that would be accepted immediately.
 
-The reason was simple: every significant feature added to the old application could become another feature that also needed to be implemented in the new one. Every new feature could increase the scope of the rewrite.
+So we had to explain the reasoning behind it. Every new feature added to the legacy platform would also increase the scope of the rewrite, because we would have to build that feature again in the new application.
 
-Getting agreement for that was not necessarily easy. A year is a long time, and when you say that engineers will spend a year rebuilding something that already exists, people naturally ask why it is needed, why it takes so long, and what they will get from it.
+And in many cases, it was not something we could simply reuse. We had to rebuild it for the new platform.
 
-Those are completely reasonable questions. Part of the work was not technical at all. It was explaining why the investment was necessary.
+So part of the work was not only technical. We also had to explain why we needed that one-year investment and how it would help us scale the product in the future.
 -->
 
 ---
@@ -314,17 +307,21 @@ flowchart TD
 </BoulitPaper>
 
 <!--
-At some point another question came up. If two engineers need around a year, what happens if we add more engineers? Can we make the rewrite finish significantly faster?
+Then the second question came up: if two engineers need one year, what happens if we add more engineers? Would that make the project significantly faster?
 
-We added another engineer to the project. And, of course, adding another person eventually gives you more capacity. But there is a cost before you get there.
+Of course, one of the reasons we chose Nuxt in the first place was to make future onboarding easier, because it gave us a clear structure and good documentation.
 
-The new engineer first had to understand the existing platform. They had to understand the business logic and how different parts of the application worked.
+But even with that, any new engineers joining the team would still need time to understand the platform itself.
 
-Onboarding isn't free. While one person is learning the application, other members of the team need to spend time helping them. You explain decisions, features, strange behaviours, and why something works in a particular way.
+They would need to understand how the legacy platform worked and also learn the business logic of the product before they could recreate it in the new application.
 
-For a period of time, adding another person can actually slow down some of the existing team. Only after that onboarding period can you start getting the full benefit.
+During that onboarding period, the existing team could not stay fully focused on writing code, because they would also need to answer questions and help the new team members get onboarded.
 
-Adding engineers is not inherently bad. The lesson is that the increase in capacity is neither immediate nor linear. A new engineer isn't productive on a specific product from the first day.
+And as the team gets bigger, there is also more communication overhead. More coordination, more code reviews, and more decisions about how we work together.
+
+So adding more engineers does not automatically mean that the project will finish proportionally faster.
+
+It’s a bit like putting more drivers in the front seat. It won’t make the bus reach its destination in half the time.
 -->
 
 ---
@@ -350,19 +347,17 @@ layout: center
 </div>
 
 <!--
-When we began working on the frontend, we didn't immediately start building complete pages.
+Then it was time to start building the application.
 
-First, we looked at the designs. We analysed which components were used again and again across the application: the basic building blocks.
+What we decided to do first was inspect the designs and identify the components that were being used across them, so we could create the base components that would structure the application.
 
-During roughly the first month, we focused on creating those common components. We were creating the components, writing tests for them, and creating stories for them as well.
+For a little more than a month, we worked on creating those base components, along with their tests and stories.
 
-The stories were particularly useful at that stage because we didn't yet have a complete application that someone could open and navigate. We needed something visible that we could show.
+The reason we added stories so early was to give visibility to the stakeholders. As I mentioned, we didn’t start by building complete pages. We started with the base components, so otherwise there wouldn’t be much to show.
 
-Even though stakeholders couldn't see a finished page yet, they could see the pieces we were creating.
+Through the stories, stakeholders could see what we were building and follow the progress of the project.
 
-After that, we started combining those components into actual pages. Eventually, we had a development environment where people could start seeing the new application taking shape.
-
-And everything looked good. At least in the beginning.
+Once we had the base components ready, we started building the actual pages and provided a development environment where the rest of the team and the stakeholders could test the application and follow its progress.
 -->
 
 ---
@@ -376,13 +371,13 @@ transition: fade
 # Then the plan met <span class="accent">reality.</span>
 
 <!--
-This is usually the part of a rewrite where the nice plan starts meeting reality.
+And now we get to the part where the rewrite and our plans start meeting reality.
 
-We had chosen the technology. We had estimated the work. We had started with reusable foundations and then moved into pages.
+We had chosen the technology, we had estimated the work, we had set the foundations with the base components, and we had started building the pages.
 
-But large rewrites do not happen in isolation. The environment around the project continues to change, the product continues to run, and assumptions that looked reasonable during planning begin to get tested.
+But a rewrite doesn’t happen in an isolation. The environment around the project changes, and things that looked reasonable during planning start getting tested.
 
-No single event immediately changed the project. Instead, several sources of additional work started accumulating.
+There wasn’t one single event that suddenly changed the project. It was several smaller things that started accumulating over time.
 -->
 
 ---
@@ -428,17 +423,11 @@ flowchart TD
 </BoulitPaper>
 
 <!--
-One challenge was that some of the things we depended on during the rewrite were still evolving.
+One of the challenges we faced was that some of the internal packages we were using to speed up our process were still evolving, and that introduced some breaking changes.
 
-That meant that while we were building the new application, some dependencies could also change underneath us. Sometimes that introduced breaking changes, and every breaking change meant additional work for the team.
+Of course, handling those changes affected both the scope and the timeline of the project.
 
-The dependency might help you move forward, but if it is still evolving, it can also create work that is difficult to predict at the beginning.
-
-This uncertainty belongs in the project plan. It is not separate from the project simply because the change happens outside your own codebase.
-
-Another related lesson was that technical decisions outside the immediate frontend work could affect the timeline too. Different approaches may be proposed, and trying alternatives also costs time when an approach doesn't work as expected.
-
-You should listen to other people, be open to being wrong, and consider different approaches. But if you believe a decision introduces significant risk to the project, you also need to make that risk very clear. The important issue is not who proposed a decision; it is whether the trade-off and its consequences are understood.
+A good lesson from that is to communicate this kind of risk as early as possible. Ideally, this should happen during the estimation phase. If the risk appears later, then communicate it as soon as you become aware of it, so everyone has enough time to decide how to handle it.
 -->
 
 ---
@@ -460,17 +449,15 @@ layout: center
 <div class="takeaway">The product you're replacing is a moving target.</div>
 
 <!--
-There was another big challenge. The rewrite was happening, but the existing product did not disappear.
+Another big challenge we faced, and something we hadn’t really thought about during the planning and estimation phase, was how to introduce the new application to the users.
 
-Users were still using it. The product was still evolving. Priorities could still change.
+You cannot just replace the application suddenly one day. Users are still using the old one, and if they wake up one day in a completely different environment, they may feel lost or stressed.
 
-We also had to think about how we were going to introduce the new version. We couldn't simply decide that one day everyone would use the old application and the next morning everybody would suddenly use the completely new application.
+We needed to give them some time to explore the new application and get familiar with it before completely replacing the old one. That way, we could also collect feedback about the new application, see what might be missing, and identify things that could be improved before the full transition.
 
-We needed a period where the existing platform could continue operating while users could also access the new version. That meant thinking about coexistence between the legacy application and the new one.
+So the challenge was: how can these two applications coexist under the same domain, and how can we make the transition from the old one to the new one as smooth as possible?
 
-At the same time, new needs continued appearing.
-
-That is one of the difficult things about rewriting an application that is already being used. You are building the new application while supporting and changing the old one. The application you're trying to replace is a moving target, and every change can have an impact on your original plan.
+This is one of the challenges you have when you are rewriting an application that is already being used.
 -->
 
 ---
@@ -489,19 +476,21 @@ transition: fade
 </div>
 
 <!--
-Another thing happened during the rewrite that I think is especially important.
+And now we come to probably the most important challenge we faced, when reality really hits you.
 
-We believed that we knew the platform extremely well. We had worked on it for a long time. We knew the features. We knew the business logic. Or at least, we thought we did.
+We believed that we knew the platform. We had been working on it for a long time. We knew the features, we knew the business logic — or at least we thought we did.
 
-There is a big difference between knowing how to maintain an application and rebuilding every detail of that application from scratch.
+But there is a big difference between knowing your application and having to rewrite everything from the start.
 
-During the rewrite, we started finding things that we had forgotten. Sometimes we remembered something slightly differently from how it actually worked.
+During the rewrite, we started finding things that we had forgotten, or things that we remembered differently from how they actually worked.
 
-We would need to go back to the existing application, check the behaviour, understand what it was actually doing, understand why it worked that way, and then reproduce that behaviour in the new application.
+So in many cases, we had to go back to the old application, investigate the code, answer our questions, and then reproduce that behaviour in the new application.
 
-This gave me one of the biggest lessons from the whole project: your team's memory is not documentation.
+And this was a very important lesson for us: you cannot do a rewrite from memory. You cannot rely only on what the team remembers.
 
-You might have people who have worked on a platform for years. You might believe that all the knowledge is somewhere inside the team. But when you need one very specific detail much later, relying on somebody remembering it correctly is not a good system.
+You need clear documentation about the business logic and how things work in the application. After some time, nobody can remember every detail of every feature.
+
+That information needs to be written somewhere and easy to find when questions come up. And it can also help new team members get onboarded much faster.
 -->
 
 ---
@@ -528,19 +517,25 @@ class: text-center
 </div>
 
 <!--
-So what happened with our one-year estimate?
+So, what happened to our one-year estimation? 
 
-We missed it. The release eventually took around a year and a half.
+You guessed it,  we missed it.
 
-I don't think there was one single reason. The scope was large. We were supporting the legacy application while building the new one. Some Blade pages required new backend endpoints. We had onboarding costs. Some dependencies changed during the project and introduced additional work. Product needs continued evolving.
+The release eventually took around a year and a half.
 
-During the rewrite, we also had to return to the legacy application and verify details because our memory wasn't enough.
+I don’t think there was one single reason for that. The scope was large, there was a lot of coordination needed, and different parts of the organisation had to work together to make the release happen.
 
-Each item can look manageable in isolation. But all these small things accumulate.
+If you look at each of these things individually, they may not seem that big. But when all these small things start adding up, they can easily push your timeline away from what you originally estimated.
 
-I don't frame the longer timeline as a personal or team failure. It is a demonstration of how many kinds of work sit around the implementation itself in a large rewrite, and how uncertainty compounds over a long project.
+I wouldn’t necessarily say that missing a deadline is a failure, especially if the delay is not too big and you have communicated the risk early.
 
-That accumulation also leads to another lesson: what to do when the original estimate starts looking unrealistic.
+When you are working on a big project that needs coordination across different teams, it is very easy to add overhead to the whole process.
+
+And of course, having too many unknowns doesn’t help.
+
+So before starting, you should try to resolve as many unknowns as possible. New ones will always come up during the project, but if you are well prepared from the beginning, you will have fewer surprises to handle later.
+
+And if the timeline needs to move, the important thing is to communicate it early and try to keep that delay under control.
 -->
 
 ---
@@ -568,19 +563,17 @@ layout: center
 <div class="takeaway">Communicate the risk before it becomes a missed deadline.</div>
 
 <!--
-When you start realising that the original deadline is at risk, communicate it immediately.
+When you start realizing that the original deadline is at risk, you need to communicate it immediately.
 
-One mistake you can make is to think: yes, we're behind, but maybe we can recover. We'll work a little faster. We'll catch up next month. We can still make it.
+One mistake you can make is to think, “We are behind, but maybe we can work faster and recover.”
 
-Then you keep trying until you are very close to the deadline. At that point, you finally tell stakeholders that you're not going to make it.
+And then, at some point, you realize that you are not going to make the deadline. But by then, it may be too late to do much about it.
 
-But by then, you've removed a lot of their ability to react.
+If you communicate the risk early, there are usually more options. Maybe priorities can change, maybe expectations can change, or maybe the scope can change.
 
-If you communicate the risk earlier, there are options. Maybe the scope can change. Maybe priorities can change. Maybe expectations can change.
+There are a lot of things that can help, as long as the risk is communicated as soon as possible.
 
-If you communicate it at the last moment, those options become much more limited.
-
-So today my rule would be: communicate the risk before it becomes a missed deadline. This is not about declaring failure at the first sign of uncertainty. It is about sharing realistic risk early enough that people can make informed decisions.
+Communicating that a deadline is at risk is not a failure. It is about being realistic early enough so people have time to make informed decisions.
 -->
 
 ---
